@@ -1,38 +1,34 @@
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import Swal from "sweetalert2"
 
-const Toast = Swal.mixin({
+export const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
-    allowOutsideClick: true,
+    // allowOutsideClick: false,
     showCloseButton: true,
     showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true,
+    timer: 1200,
+    // timerProgressBar: true,
     // didOpen: (toast) => {
     //   toast.addEventListener('mouseenter', Swal.stopTimer)
     //   toast.addEventListener('mouseleave', Swal.resumeTimer)
     // }
-})
-
-const toast = withReactContent(Toast)
+  })
 
 export function error(msg: string) {
-    toast.fire({
+    return Toast.fire({
         icon: 'error',
-        title: <strong style={{fontSize: "22px"}}>Error</strong>,
+        title: "Error",
         text: msg
     })
 }
 
 export function success(msg: string) {
-    toast.fire({
+    Toast.fire({
         icon: 'success',
-        title: <strong style={{fontSize: "22px"}}>Success</strong>,
+        title: "Success",
         text: msg
     })
 }
 
 
-export {toast}
 

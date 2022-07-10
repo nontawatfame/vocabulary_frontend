@@ -1,32 +1,31 @@
 import { AxiosError, AxiosResponse } from 'axios'
 import type { GetStaticPropsContext, GetStaticPropsResult, NextPage } from 'next'
 import { FormEvent, useEffect } from 'react'
-import * as toast from '../lib/toast'
 import * as authenticationService from '../service/authentication'
 import { useRouter } from 'next/router'
+import * as toastService from '../lib/toast'
 
 const Login: NextPage<any> = () => {
     const router = useRouter()
-
     const onsubmit = async (event: FormEvent<any>) => {
         event.preventDefault()
+        console.log(authenticationService.isAuth)
         const target: any = event.target
         const result = (await authenticationService.login(target.username.value,target.password.value)) as AxiosResponse<any,any>
-        console.log(result)
         if (result.status == 200) {
             localStorage.setItem("accessToken", result.data.accessToken)
             localStorage.setItem("refreshToken", result.data.refreshToken)
             router.push("/vocabulary") 
-            toast.success(`login Success`) 
+            toastService.success(`login Success`) 
         } else if (result.status == 400) {
             const errors: any[] = result.data.errors
             let errorMsg: string = ""
             errors.forEach(value => {
                 errorMsg += `${value.param} ${value.msg} \n`
             })
-            toast.error(errorMsg)
+            toastService.error(errorMsg)
         } else { 
-            toast.error(result.data.message)
+            toastService.error(result.data.message)
         }
     }
 
@@ -63,6 +62,9 @@ const Login: NextPage<any> = () => {
 
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     console.log(process.env.NEXT_PUBLIC_URL)
+    
+    console.log("authenticationService.isAuth")
+    console.log(authenticationService.isAuth)
     return {
         props: {
         }

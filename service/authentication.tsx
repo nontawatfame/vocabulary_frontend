@@ -9,13 +9,7 @@ export function setAuth(auth: boolean) {
 }
 
 export async function login(username: string, password: string) {
-    return new Promise((resolve, reject) => {
-        axios.post(`${url}/login`, {username,password}).then((res: AxiosResponse<any, any>)=> {
-            resolve(res);
-        }).catch((err: AxiosError) => {
-            resolve(err.response)
-        })
-    });
+    return await axios.post(`${url}/login`, {username,password}).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => err.response)
 }
 
 
