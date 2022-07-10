@@ -2,19 +2,18 @@ import type { GetStaticPathsResult, GetStaticPropsContext, GetStaticPropsResult,
 import { redirect } from 'next/dist/server/api-utils'
 import styles from '../styles/Home.module.css'
 const Home: NextPage<any> = ({data}) => {
-
   return (
     <div className={styles.container}>
-      serfiseofjsdf
     </div>
   )
 }
 
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
-  console.log(process.env.NEXT_PUBLIC_URL)
   return {
-      props: {
-      }
+    redirect: {
+      permanent: false,
+      destination: '/login',
+    }
   }
 }
 

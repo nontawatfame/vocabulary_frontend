@@ -9,12 +9,12 @@ const Login: NextPage<any> = () => {
     const router = useRouter()
     const onsubmit = async (event: FormEvent<any>) => {
         event.preventDefault()
-        console.log(authenticationService.isAuth)
         const target: any = event.target
         const result = (await authenticationService.login(target.username.value,target.password.value)) as AxiosResponse<any,any>
         if (result.status == 200) {
             localStorage.setItem("accessToken", result.data.accessToken)
             localStorage.setItem("refreshToken", result.data.refreshToken)
+            localStorage.setItem("user", "user")
             router.push("/vocabulary") 
             toastService.success(`login Success`) 
         } else if (result.status == 400) {
@@ -61,10 +61,6 @@ const Login: NextPage<any> = () => {
 }
 
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
-    console.log(process.env.NEXT_PUBLIC_URL)
-    
-    console.log("authenticationService.isAuth")
-    console.log(authenticationService.isAuth)
     return {
         props: {
         }

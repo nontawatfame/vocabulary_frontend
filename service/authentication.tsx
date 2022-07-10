@@ -1,12 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
+import next from 'next';
+import { BehaviorSubject } from 'rxjs'
 
 const url: string = process.env.NEXT_PUBLIC_URL as string
-
-export let isAuth = false
-
-export function setAuth(auth: boolean) {
-    isAuth = auth
-}
+export const userSubject = new BehaviorSubject<string>("");
 
 export async function login(username: string, password: string) {
     return await axios.post(`${url}/login`, {username,password}).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => err.response)

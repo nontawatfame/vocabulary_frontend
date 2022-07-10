@@ -13,6 +13,7 @@ specifiers:
   next: 12.2.0
   react: 18.2.0
   react-dom: 18.2.0
+  rxjs: ^7.5.5
   sweetalert2: ^11.4.20
   sweetalert2-react-content: ^5.0.1
   typescript: 4.7.4
@@ -26,6 +27,7 @@ dependencies:
   next: 12.2.0_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
+  rxjs: 7.5.5
   sweetalert2: 11.4.20
   sweetalert2-react-content: 5.0.1_2akaye5r2byhxusp7imuudzcxu
   use-local-storage-state: 18.1.0_biqbaboplfbrettd7655fr4n2y
@@ -1711,6 +1713,12 @@ packages:
     dependencies:
       queue-microtask: 1.2.3
     dev: true
+
+  /rxjs/7.5.5:
+    resolution: {integrity: sha512-sy+H0pQofO95VDmFLzyaw9xNJU4KTRSwQIGM6+iG3SypAtCiLDzpeG8sJrNCWn2Up9km+KhkvTdbkrdy+yzZdw==}
+    dependencies:
+      tslib: 2.4.0
+    dev: false
 
   /scheduler/0.23.0:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
