@@ -179,7 +179,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                 {Meaning?.name} {(Meaning?.abbreviation) ? `(${Meaning.abbreviation})`:""}
                 {(Meaning?.name) ?
                     <div style={{paddingLeft: '10px',fontSize: "16px", paddingTop: "6px"}} className="faVolumeHigh" onClick={onAudioPlay}>
-                    <FontAwesomeIcon icon={faVolumeHigh}></FontAwesomeIcon>
+                        <FontAwesomeIcon icon={faVolumeHigh}></FontAwesomeIcon>
                     </div>
                 : ""}
                 
