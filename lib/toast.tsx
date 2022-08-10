@@ -14,18 +14,18 @@ export const Toast = Swal.mixin({
     // }
   })
 
-export function error(msg: string) {
+export function error(title: string ,msg: string) {
     return Toast.fire({
         icon: 'error',
-        title: "Error",
+        title: title,
         text: msg
     })
 }
 
-export function success(msg: string) {
+export function success(title: string ,msg: string) {
     Toast.fire({
         icon: 'success',
-        title: "Success",
+        title: title,
         text: msg
     })
 }

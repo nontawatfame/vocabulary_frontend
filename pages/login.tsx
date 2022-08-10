@@ -4,28 +4,38 @@ import { FormEvent, useEffect } from 'react'
 import * as authenticationService from '../service/authentication'
 import { useRouter } from 'next/router'
 import * as toastService from '../lib/toast'
+import { useSession } from 'next-auth/react'
+import { signIn } from "next-auth/react"
 
 const Login: NextPage<any> = () => {
     const router = useRouter()
+    const { data: session } = useSession()
+
+    useEffect(() => {
+        console.log(session?.user?.name)
+    }, [])
+
     const onsubmit = async (event: FormEvent<any>) => {
         event.preventDefault()
+        signIn()
+        console.log(session)
         const target: any = event.target
         const result = (await authenticationService.login(target.username.value,target.password.value)) as AxiosResponse<any,any>
         if (result.status == 200) {
             localStorage.setItem("accessToken", result.data.accessToken)
             localStorage.setItem("refreshToken", result.data.refreshToken)
-            localStorage.setItem("user", "user")
+            
             router.push("/vocabulary") 
-            toastService.success(`login Success`) 
+            toastService.success("Success", `login Success`) 
         } else if (result.status == 400) {
             const errors: any[] = result.data.errors
             let errorMsg: string = ""
             errors.forEach(value => {
                 errorMsg += `${value.param} ${value.msg} \n`
             })
-            toastService.error(errorMsg)
+            toastService.error("error",errorMsg)
         } else { 
-            toastService.error(result.data.message)
+            toastService.error("error",result.data.message)
         }
     }
 

@@ -12,7 +12,7 @@ export async function getStaticProps(contexet: GetStaticPropsContext): Promise<G
   return {
     redirect: {
       permanent: false,
-      destination: '/login',
+      destination: '/vocabulary',
     }
   }
 }
