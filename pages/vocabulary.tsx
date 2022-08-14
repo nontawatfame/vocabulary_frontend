@@ -1,6 +1,6 @@
 import { GetStaticPropsContext, GetStaticPropsResult, NextPage } from "next";
 import { useRouter } from 'next/router'
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as vocabularyService from "../service/vocabularyService"
 import * as logService from "../service/logService"
 import * as toastService from '../lib/toast'
@@ -21,6 +21,18 @@ interface DataList {
     updated_at: Date;
 }
 
+const useDidMountEffect = (func: any, deps: any) => {
+    const didMount = useRef(false);
+  
+    useEffect(() => {
+      if (didMount.current) {
+        func();
+      } else {
+        didMount.current = true;
+      }
+    }, deps);
+  };
+
 
 const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     const [total, setTotal] = useState(dataList.length) 
@@ -28,43 +40,49 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     const [dataVocabularyList, setDataVocabularyList] = useState(dataList)
     const [ischeckCount, setIscheckCount] = useState(false)
     const [round, setRound] = useState(1)
-    const [MeaningList, setMeaningList] = useState<DataList[]>(dataList);
     const [Meaning, setMeaning] = useState<DataList>();
-    const [MeaningSound, setMeaningSound] = useState<Howl>();
     const [correct, setCorrect] = useState(0);
     const [incorrect, setIncorrect] = useState(0);
     const [logDetailList, setLogDetailList] = useState<logDetail[]>([])
-    
     const [show, setShow] = useState(false);
+    const MeaningList = useRef<DataList[]>(dataList)
+    const isFirst = useRef(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
+    useEffect(() => {
+        console.log(isFirst)
+        if (isFirst.current == false) {
+            randomMeaning(true)
+            getLogHistory()
+            isFirst.current = true
+        }
+    },[])
 
     useEffect(() => {
-        randomMeaning()
         getLogHistory()
     },[dataVocabularyList])
 
-
-    async function randomMeaning() {
+    async function randomMeaning(resume: boolean = false) {
         console.log("randomMeaning")
-        console.log(MeaningList)
-        let index = Math.floor(Math.random()*MeaningList.length)
-        console.log(index)
-        let item = MeaningList[index];
-        let filter = MeaningList.filter(value => value.id != item.id)
-        console.log(filter)
+        let index = Math.floor(Math.random()*MeaningList.current.length)
+        let item = MeaningList.current[index];
+        let filter = MeaningList.current.filter(value => value.id != item.id)
         setMeaning(item)
-        setMeaningList(filter)
+        MeaningList.current = filter
+        console.log(item)
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${item?.sound}`]
+            src: [`http://localhost:8080/sound/${item?.sound}`],
           });
-        sound.play()
-        setMeaningSound(sound)
+
+        if (resume == false) {
+            sound.play();
+        }
     }
 
     async function clickCard(value: DataList): Promise<any> {
+        console.log(ischeckCount)
         let el = document.getElementById("card"+ value.id)
         let count = countTotal + 1;
         let logDetail: logDetail = {
@@ -84,7 +102,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         }
 
         logDetailList.push(logDetail)
-        console.log(logDetailList)
         randomMeaning()
         setCountTotal(count)
         if (total == count) {
@@ -95,43 +112,44 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     }
 
     async function onAudioPlay() {
-        MeaningSound?.play()
+        let sound = new Howl({
+            src: [`http://localhost:8080/sound/${Meaning?.sound}`]
+          });
+        sound.play()
     }
 
     async function getDataList() {
         const res: DataList[] = await vocabularyService.random().then((value) => value?.data)
+        console.log(res)
         res.forEach(value => {
             let el = document.getElementById("card" + value.id)
             if (el != null) {
                 el!.style.display = "block"
             }
         })
-        setMeaningList(res)
+        MeaningList.current = res
         setDataVocabularyList(res)
         setTotal(res.length)
         setCorrect(0)
         setIncorrect(0)
         setCountTotal(0)
-        setIscheckCount(false)
+        randomMeaning()
     }
 
     async function onSummary() {
         console.log("ok")
         setIscheckCount(true)
-        setLogDetailList([])
+        getDataList()
         handleClose()
     }
 
     async function getLogHistory() {
         let history = await logService.getLogHistory()
         let data = history?.data
-        console.log(data.length)
         setRound(data.length + 1)
     }
 
-    useEffect(() => {
-        getDataList()
-    }, [ischeckCount])
+   
     return (
         <div className="container mt-5">
             <div className="d-flex justify-content-center">
@@ -175,7 +193,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                     </div>
                 </div>
             </div>
-            <div className="d-flex justify-content-center user-select-none" style={{fontSize: '24px'}}>
+            <div className="d-flex justify-content-center user-select-none" style={{fontSize: '24px', height:"36px"}}>
                 {Meaning?.name} {(Meaning?.abbreviation) ? `(${Meaning.abbreviation})`:""}
                 {(Meaning?.name) ?
                     <div style={{paddingLeft: '10px',fontSize: "16px", paddingTop: "6px"}} className="faVolumeHigh" onClick={onAudioPlay}>
@@ -192,7 +210,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                             <div className="card card-low-shadow" id={"card"+ value.id} style={{height: "95px"}}  onClick={() => {clickCard(value)}}>
                                 <div className="card-body">
                                     <div className="text-center user-select-none" style={{paddingTop: '20px',paddingBottom: '20px'}}>
-                                    {value.meaning} 
+                                        {value.meaning} 
                                     </div> 
                                 </div>
                             </div>
