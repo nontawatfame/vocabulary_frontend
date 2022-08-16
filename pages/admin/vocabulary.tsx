@@ -222,7 +222,13 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
                         {vocabularyList.map((value, index) => {
                             return <tr key={value.id}>
                             <td scope="row" className="text-center">{index + ((pagination.page - 1) * pagination.size) + 1}</td>
-                            <td className="text-center">{value.name}</td>
+                            <td className="text-center">
+                                <div>
+                                    {value.name}
+                                    <span className="badge-correct ms-3">{(value.correct != null)? value.correct : 0}</span>
+                                    <span className="badge-incorrect ms-1">{(value.incorrect != null)? value.incorrect : 0}</span>
+                                </div>
+                            </td>
                             <td className="text-center">({value.abbreviation})</td>
                             <td className="text-center">{value.meaning}</td>
                             <td className="text-center">
@@ -236,7 +242,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
                                     <button type="button" className="btn btn-danger" onClick={() => handleModalRemoveShow(value)}>delete</button>
                                 </div>
                             </td>
-                        </tr>
+                            </tr>
                         })}
                     </tbody>
                 </table>

@@ -16,6 +16,8 @@ export interface Vocabulary {
     name: string;
     type_id: number;
     meaning: string;
+    correct: number;
+    incorrect: number;
     create_at: Date;
     updated_at: Date;
     sound: string;

@@ -4,35 +4,25 @@ import { useEffect, useRef, useState } from "react";
 import * as vocabularyService from "../service/vocabularyService"
 import * as logService from "../service/logService"
 import * as toastService from '../lib/toast'
-import { logDetail } from "../model/logType";
+import { LogData, logDetail, LogDetailData } from "../model/logType";
 import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faVolumeHigh } from '@fortawesome/free-solid-svg-icons'
 import {Howl, Howler} from 'howler';
+import dayjs from "dayjs";
 
 interface DataList {
     id: number;
     name: string;
     type_id: number;
     abbreviation: string;
+    correct: number;
+    incorrect: number;
     meaning: string;
     sound: string;
     create_at: Date;
     updated_at: Date;
 }
-
-const useDidMountEffect = (func: any, deps: any) => {
-    const didMount = useRef(false);
-  
-    useEffect(() => {
-      if (didMount.current) {
-        func();
-      } else {
-        didMount.current = true;
-      }
-    }, deps);
-  };
-
 
 const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     const [total, setTotal] = useState(dataList.length) 
@@ -45,11 +35,18 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     const [incorrect, setIncorrect] = useState(0);
     const [logDetailList, setLogDetailList] = useState<logDetail[]>([])
     const [show, setShow] = useState(false);
+    const [showLogDetail, setShowLogDetail] = useState(false);
+    const [logDetailListModal, setLogDetailListModal] = useState<LogDetailData[]>([]);
+    const [dateModal, setDateModal] = useState<string>();
+    const [timeModal, setTimeModal] = useState<string>();
     const MeaningList = useRef<DataList[]>(dataList)
     const isFirst = useRef(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleLogDetailClose = () => setShowLogDetail(false);
+    const handleLogDetailShow = () => setShowLogDetail(true);
 
     useEffect(() => {
         console.log(isFirst)
@@ -74,6 +71,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         console.log(item)
         let sound = new Howl({
             src: [`http://localhost:8080/sound/${item?.sound}`],
+            volume: 0.2
           });
 
         if (resume == false) {
@@ -113,7 +111,8 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
     async function onAudioPlay() {
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${Meaning?.sound}`]
+            src: [`http://localhost:8080/sound/${Meaning?.sound}`],
+            volume: 0.2
           });
         sound.play()
     }
@@ -139,6 +138,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     async function onSummary() {
         console.log("ok")
         setIscheckCount(true)
+        setLogDetailList([])
         getDataList()
         handleClose()
     }
@@ -149,6 +149,18 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         setRound(data.length + 1)
     }
 
+    async function openLogDetail() {
+        let history = await logService.getLogHistory()
+        let log: LogData = history?.data[0]  
+        let logDetailRes = await logService.getLogDetailById(log.id) 
+        let logDetail : LogDetailData[] = logDetailRes?.data
+        let createAtDay =  dayjs(log.create_at).format("DD/MM/YYYY")
+        let createAtTime =  dayjs(log.create_at).format("HH:mm:ss")
+        setDateModal(createAtDay)
+        setTimeModal(createAtTime)
+        setLogDetailListModal(logDetail)
+        handleLogDetailShow()
+    }
    
     return (
         <div className="container mt-5">
@@ -196,15 +208,18 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
             <div className="d-flex justify-content-center user-select-none" style={{fontSize: '24px', height:"36px"}}>
                 {Meaning?.name} {(Meaning?.abbreviation) ? `(${Meaning.abbreviation})`:""}
                 {(Meaning?.name) ?
-                    <div style={{paddingLeft: '10px',fontSize: "16px", paddingTop: "6px"}} className="faVolumeHigh" onClick={onAudioPlay}>
-                        <FontAwesomeIcon icon={faVolumeHigh}></FontAwesomeIcon>
+                    <div className="displayInlineBlock">
+                        <div className="displayInlineBlock">
+                            <div style={{paddingLeft: '10px',fontSize: "16px", paddingTop: "6px"}} className="faVolumeHigh" onClick={onAudioPlay}>
+                                <FontAwesomeIcon icon={faVolumeHigh}></FontAwesomeIcon>
+                            </div>
+                        </div>
                     </div>
                 : ""}
-                
             </div>
             <div className="mt-3">
                 <div className="row">
-                    {dataVocabularyList.map(value => {
+                    {dataVocabularyList?.map(value => {
                         // eslint-disable-next-line react/jsx-key
                         return (<div className="col-3 pt-3" key={value.id} style={{height: "111px"}}>
                             <div className="card card-low-shadow" id={"card"+ value.id} style={{height: "95px"}}  onClick={() => {clickCard(value)}}>
@@ -217,7 +232,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                         </div>)
                     })}
 
-                    {(dataVocabularyList.length <= 0)? 
+                    {(dataVocabularyList?.length <= 0)? 
                         <div className="d-flex justify-content-center">
                             <h4>ไม่มีข้อมูล</h4>
                         </div>
@@ -225,8 +240,8 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                     }
                 </div>
             </div>
-
-            <Modal show={show}>
+            
+            <Modal show={show} className="user-select-none">
                 <Modal.Title className="text-center mt-3" style={{fontSize: "29px"}}>Summary</Modal.Title>
 
                 <div className="container" style={{paddingLeft: "9%", paddingRight: "9%", fontSize: "20px"}}>
@@ -240,32 +255,58 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                     </div>
                     <div className="d-flex justify-content-between">
                         <div>
-                            <span>Correct Total :</span>
-                        </div>
-                        <div>
-                            <span>{correct}</span>
-                        </div>
-                    </div>
-                    <div className="d-flex justify-content-between">
-                        <div>
-                            <span>Incorrect Total :</span>
-                        </div>
-                        <div>
-                            <span>{incorrect}</span>
-                        </div>
-                    </div>
-                    <div className="d-flex justify-content-between">
-                        <div>
                             <span>Total :</span>
                         </div>
                         <div>
                             <span>{total}</span>
                         </div>
                     </div>
+                    <div className="d-flex justify-content-center">
+                        <div className="row mt-3" >
+                            <div className="col-6 text-center"><span className="sumary-correct">Correct Total</span></div>
+                            <div className="col-6 text-center"><span className="sumary-incorrect">Incorrect Total</span></div>
+                            <div className="col-6 text-center" style={{fontSize: "64px"}}><span>{correct}</span></div>
+                            <div className="col-6 text-center" style={{fontSize: "64px"}}><span>{incorrect}</span></div>
+                        </div>
+                    </div>
                 </div>
-                
                 <div className="d-flex justify-content-center mt-3 mb-3">
                     <Button variant="success" style={{width: "95px"}} onClick={onSummary}>
+                        Ok
+                    </Button>
+                    <Button variant="secondary" className="ms-2" style={{width: "131px"}} onClick={openLogDetail}>
+                        Log Detail
+                    </Button>
+                </div>
+            </Modal>
+
+            <Modal show={showLogDetail} onHide={handleLogDetailClose} className="log-detail-modal">
+                <Modal.Title className="text-center mt-3" style={{fontSize: "29px"}}>Log Detail</Modal.Title>
+                <div className="container mt-4">
+                    <div className="d-flex justify-content-between" style={{borderRadius: "9px", padding: "16px"}}>
+                        <div>Round <span className="badge bg-primary ms-2">{round}</span></div>
+                        <div>{dateModal} <span className="time-history">{timeModal}</span></div>
+                    </div>
+                    <table className="table mb-0">
+                        <tbody className="">
+                            {logDetailListModal.map((logDetail) => {
+                                return <tr key={logDetail.id}>
+                                    <td style={{width: "141px"}}>{logDetail.name} ({logDetail.abbreviation})</td>
+                                    <td>{logDetail.meaning}</td>
+                                    <td className="text-end">
+                                        {(logDetail.correct == 1)? 
+                                            <span className="badge-correct-detail ms-2">correct</span>
+                                        : 
+                                            <span className="badge-incorrect-detail ms-2">incorrect</span>
+                                        } 
+                                    </td>
+                                </tr>
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="d-flex justify-content-center mt-3 mb-3">
+                    <Button variant="success" style={{width: "95px"}} onClick={handleLogDetailClose}>
                         Ok
                     </Button>
                 </div>

@@ -10,3 +10,7 @@ export async function createLogDetail(logDetailList: logDetail[]) {
 export async function getLogHistory() {
     return await axios.get(`${url}/log/getLogHistory`).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => err.response)
 }
+
+export async function getLogDetailById(id: number) {
+    return await axios.get(`${url}/log/getLogDetailById/${id}`).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => err.response)
+}

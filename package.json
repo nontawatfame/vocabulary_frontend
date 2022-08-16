@@ -16,6 +16,7 @@
     "axios": "^0.27.2",
     "bootstrap": "5.2.0-beta1",
     "cookies-next": "^2.1.1",
+    "dayjs": "^1.11.5",
     "howler": "^2.2.3",
     "next": "12.2.0",
     "next-auth": "^4.10.3",
