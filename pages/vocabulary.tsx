@@ -331,10 +331,12 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await vocabularyService.random();
+    console.log("res")
+    console.log(res)
     const data: any[] = res?.data
     return {
         props: {
-            dataList: data
+            dataList: (data != null) ? data : []
         }
     }
 }

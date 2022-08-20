@@ -33,7 +33,7 @@ export interface Porps {
 const url: string = process.env.NEXT_PUBLIC_URL_STATIC as string
 
 const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
-    const [vocabularyList, setVocabularyList] = useState<Vocabulary[]>(vocabularyPagination.data);
+    const [vocabularyList, setVocabularyList] = useState<Vocabulary[]>((vocabularyPagination != null) ? vocabularyPagination.data : []);
     const [typeWordList] = useState<TypeWord[]>(typeList);
     const [titleModal, setTitleModal] = useState("");
     const [showModalVocabulary, setShowModalVocabulary] = useState(false);
@@ -43,7 +43,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     const [idEdit, setIdEdit] = useState(0);
     const [vocabularyRemove, setVocabularyRemove] = useState<Vocabulary>()
     const [searchText, setSearchText] = useState("")
-    const [pagination, setPagination] = useState<InitialPagination>({...initialPagination, total_pages: vocabularyPagination.total_pages})
+    const [pagination, setPagination] = useState<InitialPagination>({...initialPagination, total_pages: (vocabularyPagination != null) ? vocabularyPagination.total_pages : 0})
 
     useEffect(() => {
         getVocabulary()
@@ -340,8 +340,8 @@ export async function getStaticProps(contexet: GetStaticPropsContext): Promise<G
     console.log(process.env.NEXT_PUBLIC_URL_STATIC as string)
     return {
         props: {
-            vocabularyPagination: dataVocabulary,
-            typeList: dataType
+            vocabularyPagination: (dataVocabulary != null) ? dataVocabulary : null,
+            typeList: (dataType != null) ? dataType : []
         }
     }
 }
