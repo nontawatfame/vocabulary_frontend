@@ -26,6 +26,7 @@ export interface LogDetailData {
     vocabulary_id: number;
     correct: number;
     incorrect: number;
+    sound: string;
     create_at: Date;
     updated_at: Date;
     name: string;

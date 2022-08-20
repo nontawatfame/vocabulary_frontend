@@ -44,8 +44,6 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     const [vocabularyRemove, setVocabularyRemove] = useState<Vocabulary>()
     const [searchText, setSearchText] = useState("")
     const [pagination, setPagination] = useState<InitialPagination>({...initialPagination, total_pages: vocabularyPagination.total_pages})
-    const [loading, setLoading] = useState(true);
-    const [color, setColor] = useState("#af2727");
 
     useEffect(() => {
         getVocabulary()

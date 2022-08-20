@@ -162,8 +162,16 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         handleLogDetailShow()
     }
    
+    async function onAudioPlayModal(logDetail: LogDetailData) {
+        let sound = new Howl({
+            src: [`http://localhost:8080/sound/${logDetail?.sound}`],
+            volume: 0.2
+          });
+        sound.play()
+    }
+
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 user-select-none">
             <div className="d-flex justify-content-center">
                 <h1>Vocabulary</h1>
             </div>
@@ -280,7 +288,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                 </div>
             </Modal>
 
-            <Modal show={showLogDetail} onHide={handleLogDetailClose} className="log-detail-modal">
+            <Modal show={showLogDetail} onHide={handleLogDetailClose} className="log-detail-modal user-select-none">
                 <Modal.Title className="text-center mt-3" style={{fontSize: "29px"}}>Log Detail</Modal.Title>
                 <div className="container mt-4">
                     <div className="d-flex justify-content-between" style={{borderRadius: "9px", padding: "16px"}}>
@@ -291,9 +299,15 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
                         <tbody className="">
                             {logDetailListModal.map((logDetail) => {
                                 return <tr key={logDetail.id}>
-                                    <td style={{width: "141px"}}>{logDetail.name} ({logDetail.abbreviation})</td>
+                                    <td style={{width: "160px"}}>{logDetail.name} ({logDetail.abbreviation})
+                                    </td>
                                     <td>{logDetail.meaning}</td>
                                     <td className="text-end">
+                                        <div style={{paddingLeft: '10px',fontSize: "16px", paddingTop: "6px", display: "inline-block"}} className="faVolumeHigh" onClick={() => onAudioPlayModal(logDetail)}>
+                                            <FontAwesomeIcon icon={faVolumeHigh}></FontAwesomeIcon>
+                                        </div>
+                                    </td>
+                                    <td className="text-end" style={{width: "125px"}}>
                                         {(logDetail.correct == 1)? 
                                             <span className="badge-correct-detail ms-2">correct</span>
                                         : 
