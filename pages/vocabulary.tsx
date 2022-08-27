@@ -24,7 +24,11 @@ interface DataList {
     updated_at: Date;
 }
 
-const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
+const urlStatic = process.env.NEXT_PUBLIC_URL_STATIC as string
+
+const Vocabulary: NextPage<{dataList: DataList[], urlServer: string}> = ({dataList, urlServer}) => {
+    console.log(dataList)
+    console.log(urlServer)
     const [total, setTotal] = useState(dataList.length) 
     const [countTotal, setCountTotal] = useState(0) 
     const [dataVocabularyList, setDataVocabularyList] = useState(dataList)
@@ -50,12 +54,18 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
     useEffect(() => {
         console.log(isFirst)
+        getRandom()
         if (isFirst.current == false) {
             randomMeaning(true)
             getLogHistory()
             isFirst.current = true
         }
     },[])
+
+    const getRandom = async () => {
+        let random = await vocabularyService.random()
+        console.log(random?.data)
+    }
 
     useEffect(() => {
         getLogHistory()
@@ -70,7 +80,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         MeaningList.current = filter
         console.log(item)
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${item?.sound}`],
+            src: [`${urlStatic}/sound/${item?.sound}`],
             volume: 0.2
           });
 
@@ -106,12 +116,11 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
             await logService.createLogDetail(logDetailList)
             handleShow()
         }
-        
     }
 
     async function onAudioPlay() {
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${Meaning?.sound}`],
+            src: [`${urlStatic}/sound/${Meaning?.sound}`],
             volume: 0.2
           });
         sound.play()
@@ -331,10 +340,14 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await vocabularyService.random();
-    const data: any[] = res?.data
+    const data: any[] = await res?.data
+    console.log(data)
+    console.log(process.env)
+    const urlServer: string = process.env.URL_API_SERVER as string
     return {
         props: {
-            dataList: data
+            dataList: (data != null) ? data : [],
+            urlServer: urlServer
         }
     }
 }
