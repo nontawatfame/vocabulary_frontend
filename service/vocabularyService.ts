@@ -24,6 +24,7 @@ export async function random() {
     return await axios.get(`${getUrl()}/vocabulary/random`).then((res: AxiosResponse<any, any>)=> {
         return res
     }).catch((err: AxiosError) => {
+        console.log(err)
         return err.response
     })
 }

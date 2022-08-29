@@ -26,9 +26,9 @@ interface DataList {
 
 const urlStatic = process.env.NEXT_PUBLIC_URL_STATIC as string
 
-const Vocabulary: NextPage<{dataList: DataList[], urlServer: string}> = ({dataList, urlServer}) => {
+const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     console.log(dataList)
-    console.log(urlServer)
+    // console.log(urlServer)
     const [total, setTotal] = useState(dataList.length) 
     const [countTotal, setCountTotal] = useState(0) 
     const [dataVocabularyList, setDataVocabularyList] = useState(dataList)
@@ -173,7 +173,7 @@ const Vocabulary: NextPage<{dataList: DataList[], urlServer: string}> = ({dataLi
    
     async function onAudioPlayModal(logDetail: LogDetailData) {
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${logDetail?.sound}`],
+            src: [`${urlStatic}/sound/${logDetail?.sound}`],
             volume: 0.2
           });
         sound.play()
@@ -347,7 +347,7 @@ export async function getStaticProps(contexet: GetStaticPropsContext): Promise<G
     return {
         props: {
             dataList: (data != null) ? data : [],
-            urlServer: urlServer
+            // urlServer: res
         }
     }
 }

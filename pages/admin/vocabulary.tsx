@@ -47,6 +47,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
 
     useEffect(() => {
         getVocabulary()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[pagination.page])
 
     const handleClose = () => setShowModalVocabulary(false);

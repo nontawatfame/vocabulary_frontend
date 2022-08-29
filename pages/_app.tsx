@@ -13,9 +13,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <div>
       <Header></Header>
-      <SessionProvider session={session}>
+      {/* <SessionProvider session={session}> */}
         <Component {...pageProps} />
-      </SessionProvider>
+      {/* </SessionProvider> */}
     </div>
   )
   

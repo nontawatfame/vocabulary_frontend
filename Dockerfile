@@ -22,7 +22,7 @@ RUN pnpm install -P
 RUN pnpm install --save-dev typescript @types/react @types/node
 
 # Build app
-RUN pnpm run build
+# RUN pnpm run build
 
 RUN chmod -R 777 ./
 
@@ -34,4 +34,5 @@ EXPOSE 3000
 USER node
 
 # Run npm start script with PM2 when container starts
-CMD [ "pm2-runtime", "pnpm", "--", "start" ]
+# CMD [ "pm2-runtime", "pnpm", "--", "start" ]
+CMD ["pnpm", "run", "dev"]
