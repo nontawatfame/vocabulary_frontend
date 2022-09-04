@@ -13,6 +13,8 @@ interface Props {
     resHistoryList: LogData[]
 }
 
+const urlStatic = process.env.NEXT_PUBLIC_URL_STATIC as string
+
 const History: NextPage<Props> = ({resHistoryList}) => { 
     const [historyList, setHistoryList] = useState(resHistoryList);
     const [logDetailList, setLogDetailList] = useState<LogDetailData[]>([]);
@@ -27,7 +29,6 @@ const History: NextPage<Props> = ({resHistoryList}) => {
     const openDetail = async (log: LogData, round: number, dayDate: string, time: string) => {
         const res = await logService.getLogDetailById(log.id)
         if (res?.status == 200) {
-            console.log(res)
             setDateModal(dayDate)
             setTimeModal(time)
             setLogModal(log)
@@ -39,7 +40,7 @@ const History: NextPage<Props> = ({resHistoryList}) => {
 
     const onAudioPlay = async (logDetail: LogDetailData) => {
         let sound = new Howl({
-            src: [`http://localhost:8080/sound/${logDetail?.sound}`],
+            src: [`${urlStatic}/sound/${logDetail?.sound}`],
             volume: 0.2
           });
         sound.play()
@@ -87,7 +88,7 @@ const History: NextPage<Props> = ({resHistoryList}) => {
                     </div>
                     <table className="table mb-0">
                         <tbody className="">
-                            {logDetailList.map((logDetail) => {
+                            {logDetailList?.map((logDetail) => {
                                 return <tr key={logDetail.id}>
                                     <td style={{width: "160px"}}>{logDetail.name} ({logDetail.abbreviation})
                                     </td>

@@ -27,8 +27,6 @@ interface DataList {
 const urlStatic = process.env.NEXT_PUBLIC_URL_STATIC as string
 
 const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
-    console.log(dataList)
-    // console.log(urlServer)
     const [total, setTotal] = useState(dataList.length) 
     const [countTotal, setCountTotal] = useState(0) 
     const [dataVocabularyList, setDataVocabularyList] = useState(dataList)
@@ -53,7 +51,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     const handleLogDetailShow = () => setShowLogDetail(true);
 
     useEffect(() => {
-        console.log(isFirst)
         getRandom()
         if (isFirst.current == false) {
             randomMeaning(true)
@@ -64,7 +61,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
     const getRandom = async () => {
         let random = await vocabularyService.random()
-        console.log(random?.data)
     }
 
     useEffect(() => {
@@ -72,13 +68,11 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     },[dataVocabularyList])
 
     async function randomMeaning(resume: boolean = false) {
-        console.log("randomMeaning")
         let index = Math.floor(Math.random()*MeaningList.current.length)
         let item = MeaningList.current[index];
         let filter = MeaningList.current.filter(value => value.id != item.id)
         setMeaning(item)
         MeaningList.current = filter
-        console.log(item)
         let sound = new Howl({
             src: [`${urlStatic}/sound/${item?.sound}`],
             volume: 0.2
@@ -90,7 +84,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     }
 
     async function clickCard(value: DataList): Promise<any> {
-        console.log(ischeckCount)
         let el = document.getElementById("card"+ value.id)
         let count = countTotal + 1;
         let logDetail: logDetail = {
@@ -128,7 +121,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 
     async function getDataList() {
         const res: DataList[] = await vocabularyService.random().then((value) => value?.data)
-        console.log(res)
         res.forEach(value => {
             let el = document.getElementById("card" + value.id)
             if (el != null) {
@@ -145,7 +137,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     }
 
     async function onSummary() {
-        console.log("ok")
         setIscheckCount(true)
         setLogDetailList([])
         getDataList()
@@ -341,8 +332,6 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await vocabularyService.random();
     const data: any[] = await res?.data
-    console.log(data)
-    console.log(process.env)
     const urlServer: string = process.env.URL_API_SERVER as string
     return {
         props: {

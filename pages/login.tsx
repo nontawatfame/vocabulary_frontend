@@ -12,13 +12,11 @@ const Login: NextPage<any> = () => {
     const { data: session } = useSession()
 
     useEffect(() => {
-        console.log(session?.user?.name)
     }, [])
 
     const onsubmit = async (event: FormEvent<any>) => {
         event.preventDefault()
         signIn()
-        console.log(session)
         const target: any = event.target
         const result = (await authenticationService.login(target.username.value,target.password.value)) as AxiosResponse<any,any>
         if (result.status == 200) {

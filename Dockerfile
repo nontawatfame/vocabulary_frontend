@@ -4,6 +4,7 @@ FROM node:alpine
 # Set working directory
 WORKDIR /usr/app
 
+ENV TZ="Asia/Bangkok"
 # Install PM2 globally
 RUN npm install --global pm2
 
@@ -23,6 +24,8 @@ RUN pnpm install --save-dev typescript @types/react @types/node
 
 # Build app
 # RUN pnpm run build
+
+
 
 RUN chmod -R 777 ./
 

@@ -104,8 +104,6 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     }
 
     const playSound = (soundName: string) => {
-        console.log(soundName)
-        console.log(`${url}/sound/${soundName}`)
         let date = new Date()
         let sound = new Howl({
             src: [`${url}/sound/${soundName}?v=${date.toISOString()}`],
@@ -123,7 +121,6 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     }
 
     const saveVocabulary = async () => {
-        console.log(form)
         if (validateForm()) {
             return false
         }
@@ -183,7 +180,6 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     }
 
     const search = async () => {
-        console.log(searchText)
         getVocabulary()
     }
 
@@ -338,7 +334,6 @@ export async function getStaticProps(contexet: GetStaticPropsContext): Promise<G
     const resType = await typeService.findAll()
     const dataType: any[] = await resType?.data
     const dataVocabulary: any =  await resVocabulary?.data
-    console.log(process.env.NEXT_PUBLIC_URL_STATIC as string)
     return {
         props: {
             vocabularyPagination: (dataVocabulary != null) ?  dataVocabulary : null,
