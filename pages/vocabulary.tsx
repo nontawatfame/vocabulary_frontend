@@ -75,7 +75,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
         MeaningList.current = filter
         let sound = new Howl({
             src: [`${urlStatic}/sound/${item?.sound}`],
-            volume: 0.2
+            // volume: 0.2
           });
 
         if (resume == false) {
@@ -114,7 +114,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     async function onAudioPlay() {
         let sound = new Howl({
             src: [`${urlStatic}/sound/${Meaning?.sound}`],
-            volume: 0.2
+            // volume: 0.2
           });
         sound.play()
     }
@@ -332,6 +332,8 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await vocabularyService.random();
     const data: any[] = await res?.data
+    // console.log("res")
+    // console.log(res)
     const urlServer: string = process.env.URL_API_SERVER as string
     return {
         props: {

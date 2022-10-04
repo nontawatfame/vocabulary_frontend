@@ -1,16 +1,18 @@
-import { faArrowsDownToLine, faArrowUpFromBracket, faDownload, faPersonArrowDownToLine, faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
+import { faVolumeHigh, faGear } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Howl } from "howler";
 import { GetStaticPropsContext, GetStaticPropsResult, NextPage } from "next";
-import { ChangeEvent, ChangeEventHandler, CSSProperties, useEffect, useState } from "react";
-import { Button, Modal, Pagination } from "react-bootstrap";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 import * as typeService from "../../service/typeService"
 import * as vocabularyService from "../../service/vocabularyService"
+import * as settingService from "../../service/settingService"
 import * as toastService from '../../lib/toast'
-import { InitialFormState, InitialPagination, Vocabulary } from "../../model/vocabularyType";
+import { InitialFormState, InitialPagination, SettingForm, Vocabulary } from "../../model/vocabularyType";
 import { TypeWord } from "../../model/typeType";
 import { PaginationRes } from "../../model/paginationType";
 import PaginationAction from "../../component/PaginationAction";
+import { SettingType } from "../../model/settingType";
 
 const initialFormState: InitialFormState  = {
     vocabulary: "",
@@ -25,14 +27,21 @@ const initialPagination: InitialPagination = {
     total_pages: 0
 }
 
+const initialFormSetting: SettingType = {
+    correct: "1",
+    condition_setting: "=",
+    user_id: 0
+}
+
 export interface Porps {
     vocabularyPagination: PaginationRes<Vocabulary>,
-    typeList: TypeWord[]
+    typeList: TypeWord[],
+    settingType: SettingType
 }
 
 const url: string = process.env.NEXT_PUBLIC_URL_STATIC as string
 
-const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
+const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, settingType}) => {
     const [vocabularyList, setVocabularyList] = useState<Vocabulary[]>((vocabularyPagination?.data != null) ? vocabularyPagination?.data : []);
     const [typeWordList] = useState<TypeWord[]>(typeList);
     const [titleModal, setTitleModal] = useState("");
@@ -44,6 +53,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     const [vocabularyRemove, setVocabularyRemove] = useState<Vocabulary>()
     const [searchText, setSearchText] = useState("")
     const [pagination, setPagination] = useState<InitialPagination>({...initialPagination, total_pages: (vocabularyPagination?.total_pages != null)? vocabularyPagination?.total_pages: 0})
+    const [settingForm, setSettingForm] = useState<SettingType>({...initialFormSetting, ...settingType})
 
     useEffect(() => {
         getVocabulary()
@@ -82,6 +92,21 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
         setVocabularyRemove(vocabulary)
         setShowModalRemove(true)
     };
+
+    const [showModalSetting, setShowModalSetting] = useState(false);
+    const handleModalSettingClose = () => setShowModalSetting(false);
+    const handleModalSettingShow = () => {
+        setShowModalSetting(true)
+    };
+
+    const confirmSetting = async () => {
+        const result = await settingService.save(settingForm)
+        if (result?.status == 200) {
+            handleModalSettingClose()
+            getVocabulary()
+            toastService.success("Success", result.data.message)
+        }
+    }
 
     const changeSound = (e: ChangeEvent<HTMLInputElement>) => {
         let target = e.target as HTMLInputElement
@@ -180,6 +205,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
     }
 
     const search = async () => {
+        pagination.page = 1
         getVocabulary()
     }
 
@@ -187,12 +213,30 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
         setPagination({...pagination, page: page})
     }
 
+    const increase = () => {
+        setSettingForm({...settingForm, correct: (parseInt(settingForm.correct) + 1).toString()})
+    }
+
+    const decrease = () => {
+        if ((parseInt(settingForm.correct) - 1) > 0) {
+            setSettingForm({...settingForm, correct: (parseInt(settingForm.correct) - 1).toString()})
+        }
+    }
+
+    const onChangeCorrect = (e: any) => {
+        console.log(e)
+        setSettingForm({...settingForm, correct: e.target.value.replace(/\D/,'')})
+    }
+
     return (
         <div className="container mt-5 sweet-loading">
             <div className="d-flex justify-content-center">
                 <h1>Admin Vocabulary</h1>
+                <div style={{fontSize: "20px", paddingTop: "13px", paddingLeft: "7px"}} className="faGearIcon" onClick={handleModalSettingShow}>
+                    <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
+                </div>
             </div>
-            <div className="d-flex justify-content-between">
+            <div className="d-flex justify-content-between mt-3">
                 <div className="d-flex">
                     <input className="form-control me-2" type="search" placeholder="Search vocabulary" aria-label="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)}/>
                     <button className="btn btn-primary" type="button" onClick={search}>Search</button>
@@ -325,6 +369,45 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
                 </Button>
                 </Modal.Footer>
             </Modal>
+
+
+            <Modal show={showModalSetting} onHide={handleModalSettingClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Setting</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mb-3 ">
+                        <label htmlFor="exampleFormControlInput1" className="form-label">Correct</label>
+                        <div className="input-group">
+                            <button className="btn btn-primary btn-shadow-none" id="basic-addon1" onClick={increase}>+</button>
+                            <input type="text" className="form-control text-center" id="meaning" placeholder="Correct" value={settingForm?.correct}  onChange={(e) => onChangeCorrect(e)}/>
+                            <button className="btn btn-primary btn-shadow-none" id="basic-addon1" onClick={decrease} >-</button>
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="exampleFormControlInput1" className="form-label">Condition</label>
+                        <select className="form-select" 
+                        aria-label="Default select example" 
+                        id="type" 
+                        placeholder="Word classes" 
+                        value={settingForm?.condition_setting} 
+                        onChange={(e) => setSettingForm({...settingForm, condition_setting: e.target.value})}>
+                            <option  value="=">=</option>
+                            <option  value=">=">{'>='}</option>
+                            <option  value="<=">{'<='}</option>
+                        </select>
+                    </div>
+
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={confirmSetting}>
+                    Save
+                </Button>
+                <Button variant="secondary" onClick={handleModalSettingClose}>
+                    Cancel
+                </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 } 
@@ -332,12 +415,15 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList}) => {
 export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const resVocabulary = await vocabularyService.findAllPagination(1,10,"");
     const resType = await typeService.findAll()
+    const resSetting = await settingService.getSetting()
     const dataType: any[] = await resType?.data
     const dataVocabulary: any =  await resVocabulary?.data
+    const dataSetting: any[] =  await resSetting?.data
     return {
         props: {
             vocabularyPagination: (dataVocabulary != null) ?  dataVocabulary : null,
-            typeList: (dataType != null) ? dataType : []
+            typeList: (dataType != null) ? dataType : [],
+            settingType: (dataSetting != null) ? dataSetting[0] : initialFormSetting
         }
     }
 }

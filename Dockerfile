@@ -1,5 +1,5 @@
 # Base on offical Node.js Alpine image
-FROM node:alpine
+FROM node:current-alpine
 
 # Set working directory
 WORKDIR /usr/app
@@ -23,9 +23,7 @@ RUN pnpm install -P
 RUN pnpm install --save-dev typescript @types/react @types/node
 
 # Build app
-# RUN pnpm run build
-
-
+RUN pnpm run build
 
 RUN chmod -R 777 ./
 
@@ -38,4 +36,5 @@ USER node
 
 # Run npm start script with PM2 when container starts
 # CMD [ "pm2-runtime", "pnpm", "--", "start" ]
+
 CMD ["pnpm", "run", "dev"]

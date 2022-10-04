@@ -23,3 +23,8 @@ export interface Vocabulary {
     sound: string;
     abbreviation: string;
 }
+
+export interface SettingForm  {
+    correct: string;
+    condition: string;
+}

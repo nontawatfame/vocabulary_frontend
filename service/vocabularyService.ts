@@ -13,7 +13,10 @@ function getUrl(): string  {
 }
 
 export async function random() {
-    return await axios.get(`${getUrl()}/vocabulary/random`).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => err.response)
+    return await axios.get(`${getUrl()}/vocabulary/random`).then((res: AxiosResponse<any, any>)=> res).catch((err: AxiosError) => {
+        console.log(err)
+        return err.response
+    })
 }
 
 export async function findAllPagination(page: number, size: number, search: string) {

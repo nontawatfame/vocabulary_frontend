@@ -9,7 +9,7 @@ import { signIn } from "next-auth/react"
 
 const Login: NextPage<any> = () => {
     const router = useRouter()
-    const { data: session } = useSession()
+    // const { data: session } = useSession()
 
     useEffect(() => {
     }, [])
