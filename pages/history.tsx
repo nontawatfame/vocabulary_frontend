@@ -41,7 +41,6 @@ const History: NextPage<Props> = ({resHistoryList}) => {
     const onAudioPlay = async (logDetail: LogDetailData) => {
         let sound = new Howl({
             src: [`${urlStatic}/sound/${logDetail?.sound}`],
-            volume: 0.2
           });
         sound.play()
     }
