@@ -31,7 +31,8 @@ const initialFormSetting: SettingType = {
     correct: "1",
     condition_setting: "=",
     user_id: 0,
-    maxmin: "1"
+    maximum: "0",
+    minimum: "0"
 }
 
 export interface Porps {
@@ -42,7 +43,11 @@ export interface Porps {
 
 const url: string = process.env.NEXT_PUBLIC_URL_STATIC as string
 
+
+
 const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, settingType}) => {
+    
+
     const [vocabularyList, setVocabularyList] = useState<Vocabulary[]>((vocabularyPagination?.data != null) ? vocabularyPagination?.data : []);
     const [typeWordList] = useState<TypeWord[]>(typeList);
     const [titleModal, setTitleModal] = useState("");
@@ -55,6 +60,9 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
     const [searchText, setSearchText] = useState("")
     const [pagination, setPagination] = useState<InitialPagination>({...initialPagination, total_pages: (vocabularyPagination?.total_pages != null)? vocabularyPagination?.total_pages: 0})
     const [settingForm, setSettingForm] = useState<SettingType>({...initialFormSetting, ...settingType})
+    const [inputMaxmin, setInputMaxmin] = useState<string>((settingForm.condition_setting == ">=")? settingForm.maximum
+        :(settingForm.condition_setting == "<=")? settingForm.minimum: "0"
+    )
     const titleSettingMM: any = {
         '>=': 'Maximum',
         '<=': 'Minimum'
@@ -105,6 +113,11 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
     };
 
     const confirmSetting = async () => {
+        if (settingForm.condition_setting == ">=") {
+            settingForm.maximum = inputMaxmin
+        } else if (settingForm.condition_setting == "<=") {
+            settingForm.minimum = inputMaxmin
+        }
         const result = await settingService.save(settingForm)
         if (result?.status == 200) {
             handleModalSettingClose()
@@ -112,6 +125,8 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
             toastService.success("Success", result.data.message)
         }
     }
+
+    
 
     const changeSound = (e: ChangeEvent<HTMLInputElement>) => {
         let target = e.target as HTMLInputElement
@@ -224,7 +239,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
             settingForm.correct = "0"
         }
 
-        if (checkCorrect(parseInt(settingForm.correct) + 1, parseInt(settingForm.maxmin))) {
+        if (checkCorrect(parseInt(settingForm.correct) + 1, parseInt(settingForm.maximum))) {
             return false
         }
         setSettingForm({...settingForm, correct: (parseInt(settingForm.correct) + 1).toString()})
@@ -235,7 +250,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
             settingForm.correct = "2"
         }
         if ((parseInt(settingForm.correct) - 1) > 0) {
-            if (checkCorrect(parseInt(settingForm.correct) - 1, parseInt(settingForm.maxmin))) {
+            if (checkCorrect(parseInt(settingForm.correct) - 1, parseInt(settingForm.maximum))) {
                 return false
             }
             setSettingForm({...settingForm, correct: (parseInt(settingForm.correct) - 1).toString()})
@@ -243,39 +258,42 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
     }
 
     const increaseMM = () => {
-        if (settingForm.maxmin == "") {
-            settingForm.maxmin = "0"
+        if (inputMaxmin == "") {
+            setInputMaxmin("0")
         }
-        if (checkCorrect(parseInt(settingForm.correct), parseInt(settingForm.maxmin) + 1)) {
+        if (checkCorrect(parseInt(settingForm.correct), parseInt(inputMaxmin.toString()) + 1)) {
             return false
         }
         console.log("etst")
-        setSettingForm({...settingForm, maxmin: (parseInt(settingForm.maxmin) + 1).toString()})
-        
+        console.log(inputMaxmin)
+        console.log(typeof inputMaxmin)
+        setInputMaxmin((parseInt(inputMaxmin.toString()) + 1).toString())
     }
 
     const decreaseMM = () => {
-        if (settingForm.maxmin == "") {
-            settingForm.maxmin = "2"
+        if (inputMaxmin == "") {
+            setInputMaxmin("2")
         }
-        if ((parseInt(settingForm.maxmin) - 1) > 0) {
-            if (checkCorrect(parseInt(settingForm.correct), parseInt(settingForm.maxmin) - 1)) {
+        if ((parseInt(inputMaxmin.toString()) - 1) > 0) {
+            if (checkCorrect(parseInt(settingForm.correct), parseInt(inputMaxmin.toString()) - 1)) {
                 return false
             }
-            setSettingForm({...settingForm, maxmin: (parseInt(settingForm.maxmin) - 1).toString()})
+            setInputMaxmin((parseInt(inputMaxmin.toString()) - 1).toString())
         }
     }
 
-    const checkCorrect = (correct: number, maxmin: number) => {
+    const checkCorrect = (correct: number, maximum: number) => {
         console.log(correct)
         if (settingForm.condition_setting == '>=') {
-            if (correct > maxmin) {
-                setSettingForm({...settingForm, maxmin: correct.toString(), correct: correct.toString()})
+            if (correct > maximum) {
+                setSettingForm({...settingForm, correct: correct.toString()})
+                setInputMaxmin(correct.toString())
                 return true
             }
         } else if (settingForm.condition_setting == '<=') {
-            if (correct < maxmin) {
-                setSettingForm({...settingForm, maxmin: correct.toString(), correct: correct.toString()})
+            if (correct < maximum) {
+                setSettingForm({...settingForm, correct: correct.toString()})
+                setInputMaxmin(correct.toString())
                 return true
             }
         }
@@ -283,12 +301,24 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
 
     const onChangeCorrect = (e: any) => {
         setSettingForm({...settingForm, correct: e.target.value.replace(/\D/,'')})
-        checkCorrect(parseInt(e.target.value.replace(/\D/,'')), parseInt(settingForm.maxmin))
+        checkCorrect(parseInt(e.target.value.replace(/\D/,'')), parseInt(inputMaxmin.toString()))
     }
 
     const onChangeMaxmin = (e: any) => {
-        setSettingForm({...settingForm, maxmin: e.target.value.replace(/\D/,'')})
+        setInputMaxmin(e.target.value.replace(/\D/,''))
         checkCorrect(parseInt(settingForm.correct), parseInt(e.target.value.replace(/\D/,'')))
+    }
+
+    const settingChange = (value: any) => {
+        console.log(value)
+        console.log("value")
+        console.log(settingForm)
+        if (value == ">=") {
+            setInputMaxmin(settingForm.maximum)
+        } else if (value == "<=") {
+            setInputMaxmin(settingForm.minimum)
+        }
+        setSettingForm({...settingForm, condition_setting: value})
     }
 
     return (
@@ -364,8 +394,6 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
             : ""
             }
             
-            
-
             <Modal show={showModalVocabulary} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>{titleModal} vocabulary</Modal.Title>
@@ -454,7 +482,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
                         id="type" 
                         placeholder="Word classes" 
                         value={settingForm?.condition_setting} 
-                        onChange={(e) => setSettingForm({...settingForm, condition_setting: e.target.value})}>
+                        onChange={(e) => settingChange(e.target.value)}>
                             <option  value="=">=</option>
                             <option  value=">=">{'>='}</option>
                             <option  value="<=">{'<='}</option>
@@ -465,7 +493,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
                             <label htmlFor="exampleFormControlInput1" className="form-label">{titleSettingMM[settingForm.condition_setting]}</label>
                             <div className="input-group">
                                 <button className="btn btn-primary btn-shadow-none" id="basic-addon1" onClick={increaseMM}>+</button>
-                                <input type="text" className="form-control text-center" id="meaning" placeholder="Correct" value={settingForm?.maxmin}  onChange={(e) => onChangeMaxmin(e)}/>
+                                <input type="text" className="form-control text-center" id="meaning" placeholder="Correct" value={inputMaxmin}  onChange={(e) => onChangeMaxmin(e)}/>
                                 <button className="btn btn-primary btn-shadow-none" id="basic-addon1" onClick={decreaseMM} >-</button>
                             </div>
                         </div>
