@@ -514,7 +514,7 @@ const AdminVocabulary: NextPage<Porps> = ({vocabularyPagination, typeList, setti
     )
 } 
 
-export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
+export async function getServerSideProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const resVocabulary = await vocabularyService.findAllPagination(1,10,"");
     const resType = await typeService.findAll()
     const resSetting = await settingService.getSetting()

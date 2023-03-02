@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios'
 const urlClient: string = process.env.NEXT_PUBLIC_URL as string
 const urlServer: string = process.env.URL_API_SERVER as string
 
-function getUrl(): string  {
+export function getUrl(): string  {
     let urlRes = urlClient
     if (typeof window === 'undefined') {
         urlRes = urlServer

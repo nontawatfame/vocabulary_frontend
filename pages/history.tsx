@@ -119,7 +119,7 @@ const History: NextPage<Props> = ({resHistoryList}) => {
     )
 }
 
-export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
+export async function getServerSideProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await logService.getLogHistory();
     const data: any[] = await res?.data
     return {

@@ -13,14 +13,15 @@ RUN npm install -g pnpm
 # Copy package.json and package-lock.json before other files
 # Utilise Docker cache to save re-installing dependencies if unchanged
 COPY ./package*.json ./
-
-# Copy all files
-COPY ./ ./
+COPY ./pnpm-lock.yaml ./
 
 # Install dependencies
 RUN pnpm install -P 
 
 RUN pnpm install --save-dev typescript @types/react @types/node
+
+# Copy all files
+COPY ./ ./
 
 # Build app
 RUN pnpm run build
@@ -35,6 +36,6 @@ EXPOSE 3000
 USER node
 
 # Run npm start script with PM2 when container starts
-# CMD [ "pm2-runtime", "pnpm", "--", "start" ]
+CMD [ "pm2-runtime", "pnpm", "--", "start" ]
 
-CMD ["pnpm", "run", "dev"]
+# CMD ["pnpm", "run", "dev"]

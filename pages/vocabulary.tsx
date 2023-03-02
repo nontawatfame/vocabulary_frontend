@@ -328,7 +328,7 @@ const Vocabulary: NextPage<{dataList: DataList[]}> = ({dataList}) => {
     )
 }
 
-export async function getStaticProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
+export async function getServerSideProps(contexet: GetStaticPropsContext): Promise<GetStaticPropsResult<any>> {
     const res = await vocabularyService.random();
     const data: any[] = await res?.data
     // console.log("res")
